@@ -1,6 +1,4 @@
-# Interactions Dashboard
-
-This is the fork of Moodle Interactions Plugin Project at https://github.com/ugGit/mdl_interactions_plugin.
+# Moodle Interactions Plugin Project
 
 Aim of this project is the creation of a learning analytics web application for data extracted from the Moodle standard log.
 
