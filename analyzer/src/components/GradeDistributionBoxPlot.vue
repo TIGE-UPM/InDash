@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-header>Overall Event Distribution</v-card-header>
+    <v-card-header>Grade Distribution</v-card-header>
     <vue-highcharts
       type="chart"
       :options="chartOptions"
@@ -8,11 +8,6 @@
       :oneToOneUpdate="true"
       :animateOnUpdate="true"
     />
-    <p class="text-caption py-5">
-      *The criteria for outliers at the lower boundary is set to: Q1 - (Q3 - Q1)
-      <br />
-      The same ratio applies for the upper boundary with: Q3 + (Q3 - Q1)
-    </p>
   </v-card>
 </template>
 
@@ -25,28 +20,44 @@ HighchartsMore(HighCharts);
 
 import * as bp from "@/utils/boxplot";
 import { firstUserPlotColor, secondUserPlotColor } from "@/utils/constants";
+import { cloneDeep } from "lodash";
 
 export default {
-  name: "EventDistributionBoxPlot",
+  name: "GradeDistributionBoxPlot",
   props: ["data", "selectedUsers"],
   components: {
     VueHighcharts,
   },
   computed: {
+    // transform the selected user objects to match the expectation to display the grade
+    selectedUsersAdapter() {
+      const adaptedSelectedUsers = cloneDeep(this.selectedUsers);
+      for (const user of adaptedSelectedUsers) {
+        user.data = user.grade ? [user.grade.grade] : [undefined];
+      }
+      return adaptedSelectedUsers;
+    },
     // inspired by: https://stackoverflow.com/a/30896483/6691953
     chartOptions() {
-      //build the data and add the series to the chart
+      // remove the date object from nested grade objects
+      const gradeData = cloneDeep(this.data);
+      for (let key in gradeData) {
+        delete gradeData[key].date;
+      }
+
+      // check if we need to inject average
+
+      // build the data and add the series to the chart
       const boxData = [];
 
       // get labels from input data (i.e. categories)
-      const labels = Object.keys(this.data[Object.keys(this.data)[0]]);
+      const labels = Object.keys(gradeData[Object.keys(gradeData)[0]]);
       // transform input data to arrays containing values of each category
       const transformedData = labels.map((l) => {
-        return Object.values(this.data).map((user) => {
+        return Object.values(gradeData).map((user) => {
           return user[l];
         });
       });
-
       // calculate box plot values
       for (let i = 0; i < transformedData.length; i++) {
         const boxValues = bp.getBoxValues(transformedData[i]);
@@ -59,11 +70,11 @@ export default {
         boxValues.values.outliers = boxOutliers.map((x) => [i, x]); // TODO: place this properly, meaning if on values or somewhere else
         boxData.push(boxValues.values);
       }
-
       return {
         chart: {
           type: "boxplot",
-          zoomType: "y",
+          inverted: true,
+          height: 150,
         },
 
         title: {
@@ -77,14 +88,12 @@ export default {
 
         xAxis: {
           categories: labels,
-          title: {
-            text: "Categories",
-          },
+          visible: false,
         },
 
         yAxis: {
           title: {
-            text: "Nbr of Interactions",
+            text: "Grade",
           },
         },
 
@@ -95,12 +104,12 @@ export default {
           bp.generateOutlierPlotConfigData(boxData),
           // config data for first selected user
           bp.generateSelectedUserPlotConfigData(
-            this.selectedUsers[0],
+            this.selectedUsersAdapter[0],
             firstUserPlotColor
           ),
           // config data for second selected user
           bp.generateSelectedUserPlotConfigData(
-            this.selectedUsers[1],
+            this.selectedUsersAdapter[1],
             secondUserPlotColor
           ),
         ],

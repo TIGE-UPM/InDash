@@ -18,6 +18,8 @@ import HighchartsMore from "highcharts/highcharts-more";
 
 HighchartsMore(HighCharts);
 
+import { firstUserPlotColor, secondUserPlotColor } from "@/utils/constants";
+
 export default {
   name: "CompareEventDistributionRadarChart",
   props: ["plotData", "plotDataCategories"],
@@ -32,7 +34,7 @@ export default {
           name: element.name,
           data: element.data,
           pointPlacement: "on",
-          color: HighCharts.getOptions().colors[index == 0 ? 0 : 3],
+          color: index == 0 ? firstUserPlotColor : secondUserPlotColor,
         });
       });
 

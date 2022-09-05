@@ -17,10 +17,7 @@
           <br />
           Role: {{ user.role }}
           <br />
-          Grade:
-          <span v-if="user.grade"> {{ formatGrade(user.grade.grade) }} </span>
-          <br />
-          Graded at:
+          Grade received on:
           <span v-if="user.grade && user.grade.date">
             {{ formatTimestampToDate(user.grade.date) }}
           </span>
