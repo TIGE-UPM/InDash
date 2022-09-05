@@ -3,10 +3,24 @@
   <v-container>
     <v-row>
       <v-col cols="4">
-        <course-log-filters
-          :filter-options="courseLogFilterOptions"
-          @filterSelectionUpdated="updateFilterSelection"
-      /></v-col>
+        <v-row
+          ><v-col>
+            <download-options
+              :filtered-log="courseLogFiltered"
+              :category-count-per-user="categoryCountPerUser"
+              :event-count-per-user="eventCountPerUser"
+            ></download-options
+          ></v-col>
+        </v-row>
+        <v-row
+          ><v-col>
+            <course-log-filters
+              :filter-options="courseLogFilterOptions"
+              @filterSelectionUpdated="updateFilterSelection"
+            />
+          </v-col>
+        </v-row>
+      </v-col>
       <v-col cols="8" v-if="!isLoading">
         <v-row>
           <v-col>
@@ -22,6 +36,18 @@
               :user-details="selectedUserData"
               :course-grades="courseGrades"
               :course-grades-range="courseGradeRangeFromatted"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <grade-distribution-box-plot
+              v-if="
+                Object.keys(categoryCountPerUser).length > 0 &&
+                selectedUserData.length > 0
+              "
+              :data="courseGrades"
+              :selected-users="selectedUserData"
             />
           </v-col>
         </v-row>
@@ -63,7 +89,9 @@ import CourseLogTable from "@/components/CourseLogTable.vue";
 import CompareEventDistributionRadarChart from "@/components/CompareEventDistributionRadarChart.vue";
 import PlotUserSelection from "@/components/PlotUserSelection.vue";
 import EventDistributionBoxPlot from "@/components/EventDistributionBoxPlot.vue";
+import GradeDistributionBoxPlot from "@/components/GradeDistributionBoxPlot.vue";
 import UserSelectionDetails from "@/components/UserSelectionDetails.vue";
+import DownloadOptions from "@/components/DownloadOptions.vue";
 
 import { mapState } from "vuex";
 
@@ -80,6 +108,8 @@ export default {
     PlotUserSelection,
     EventDistributionBoxPlot,
     UserSelectionDetails,
+    GradeDistributionBoxPlot,
+    DownloadOptions,
   },
   data: function () {
     return {

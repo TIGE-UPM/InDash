@@ -98,7 +98,20 @@ export default {
           headersAll.forEach((key, index) => {
             // only consider columns of interest
             if (columnsOfInterest.includes(key)) {
-              rowObj[key] = row[index];
+              // strip number tags if requried (and check if current cell has some content)
+              if (
+                ["useragentbased", "newlc"].includes(key) &&
+                typeof row[index] !== "undefined"
+              ) {
+                rowObj[key] = row[index].substring(2); // remove the two first characters
+              } else if (
+                ["activepassive"].includes(key) &&
+                typeof row[index] !== "undefined"
+              ) {
+                rowObj[key] = row[index].substring(3); // remove the three first characters
+              } else {
+                rowObj[key] = row[index];
+              }
             }
           });
           dataFormatted.push(rowObj);
